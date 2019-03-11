@@ -9,7 +9,7 @@ class App {
     public app: express.Application;
     // Production DataBase
     // public mongoUrl: string = 'mongodb://root:root@ec2-3-92-190-66.compute-1.amazonaws.com:27017/onit?authSource=admin'
-    public mongoUrl: string = 'mongodb://localhost:27017/CRMdb';
+    public mongoUrl: string = 'mongodb://localhost:27017/onit';
 
     constructor(controllers: Controller[]) {
         this.app = express();

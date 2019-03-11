@@ -20,7 +20,6 @@ export class TaskController implements Controller {
         this.router.post(`${this.path}/create`, this.addNewTask);
         this.router.post(`${this.path}/:taskId/edit`, this.editTask);
         this.router.post(`${this.path}/:taskId/delete`, this.deleteTask);
-
     }
 
     public addNewTask(req: Request, res: Response) {

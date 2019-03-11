@@ -4,6 +4,8 @@ import { Request, Response, Router, NextFunction } from 'express';
 import Controller from './interface';
 import EmailAlreadyExistsException from '../exceptions/EmailAlreadyExistsException';
 import WrongCredentialsException from '../exceptions/WrongCredentialsException';
+import WrongAuthenticationTokenException from '../exceptions/WrongAuthenticationTokenException';
+import { TokenService } from './tokenService';
 
 const User = mongoose.model('UserAuthentication', UserSchema);
 
@@ -17,10 +19,11 @@ export class UserController implements Controller {
     }
 
     public initializeRoutes() {
-        this.router.post(`${this.path}/login`, this.login);
-        this.router.post(`${this.path}/createAccount`, this.register);
-        this.router.post(`${this.path}/:userId/edit`, this.editAccount);
-        this.router.post(`${this.path}/:userId/delete`, this.deleteAccount);
+        this.router.post(`${this.path}/login`, (req, res, next) => this.login(req, res, next));
+        this.router.post(`${this.path}/createAccount`, this.register.bind(this));
+        this.router.post(`${this.path}/edit`, TokenService.decryptMiddleware, this.editAccount.bind(this));
+        this.router.post(`${this.path}/delete`, TokenService.decryptMiddleware, this.deleteAccount.bind(this));
+        this.router.get(`${this.path}`, TokenService.decryptMiddleware, this.getUser.bind(this));
     }
 
     // Create User Account
@@ -48,10 +51,8 @@ export class UserController implements Controller {
             } else if (user) {
                 const userPassword = req.body.password;
                 if (user.password == userPassword) {
-                    res.send({
-                        name: user.name,
-                        email: user.email
-                    });
+                    const tokenData = TokenService.createToken(user);
+                    res.send(tokenData);
                 } else {
                     next(new WrongCredentialsException());
                 }
@@ -59,23 +60,40 @@ export class UserController implements Controller {
                 next(new WrongCredentialsException());
             }
         });
-
     }
 
-    // Edit User Account info such as name, email, and password
-    public editAccount(req: Request, res: Response) {
-        User.findOneAndUpdate({ _id: req.params.userId }, req.body, { new: true }, (err, user) => {
+    // Get User Account
+    public getUser(req: any, res: Response) {
+        User.findById(req.userId, (err, user) => {
             if (err) {
                 res.send(err);
             }
-            res.json(user);
+            res.send({
+                name: user.name,
+                email: user.email
+            });
+        });
+    }
+
+    // Edit User Account info such as name, email, and password
+    public editAccount(req: any, res: Response, next: NextFunction) {
+        User.findOneAndUpdate({ _id: req.userId }, req.body, { new: true }, (err, user) => {
+            if (err) {
+                next(new WrongAuthenticationTokenException());
+                res.send(err);
+            }
+            res.send({
+                name: user.name,
+                email: user.email
+            });
         });
     }
 
     // Delete User Account
-    public deleteAccount(req: Request, res: Response) {
-        User.remove({ _id: req.params.userId }, (err, user) => {
+    public deleteAccount(req: any, res: Response, next: NextFunction) {
+        User.remove({ _id: req.userId }, (err, user) => {
             if (err) {
+                next(new WrongAuthenticationTokenException());
                 res.send(err);
             }
             res.json({ message: 'Successfully deleted account' });
