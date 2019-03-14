@@ -2,7 +2,7 @@
 set -e
 
 USER=ec2-user
-HOST=ec2-3-92-190-66.compute-1.amazonaws.com
+HOST=ec2-18-204-24-255.compute-1.amazonaws.com
 IMAGE_NAME=onit-api-image
 PEM_FILE=./ci/global_key.pem
 
