@@ -3,7 +3,7 @@ import DataStoredInToken from './dataStoredInToken';
 import TokenData from './tokenDataInterface';
 import { NextFunction } from 'connect';
 
-const secret = 'asduasduiasdhasdiu';
+const secret = process.env.SECRET;
 
 export class TokenService {
 

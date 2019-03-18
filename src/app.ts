@@ -7,9 +7,7 @@ const PORT = 3000;
 class App {
 
     public app: express.Application;
-    // Production DataBase
-    public mongoUrl: string = 'mongodb://root:root@ec2-18-204-24-255.compute-1.amazonaws.com:27017/onit?authSource=admin'
-    // public mongoUrl: string = 'mongodb://localhost:27017/onit';
+    public mongoUrl: string = process.env.DB_URL;
 
     constructor(controllers: Controller[]) {
         this.app = express();
@@ -42,8 +40,8 @@ class App {
     private mongoSetup(): void {
         mongoose.Promise = global.Promise;
         // mongoose.connect(this.mongoUrl, { useNewUrlParser: true });
-
-        mongoose.connect(this.mongoUrl).then(() => {
+        console.info(`Connecting to mongo at ${this.mongoUrl}`)
+        mongoose.connect(this.mongoUrl, { useNewUrlParser: true }).then(() => {
             console.log("Connected to Database");
         }).catch((err) => {
             console.log("Not Connected to Database ERROR! ", err);
