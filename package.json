@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/server.ts",
+    "dev": "DB_URL='mongodb://localhost:27017/onit' SECRET='ashuashuashuashu' nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/server.ts",
     "prod": "forever -o out.log -e err.log ./dist/server.js"
   },
   "keywords": [],
