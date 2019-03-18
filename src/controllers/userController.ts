@@ -47,7 +47,7 @@ export class UserController implements Controller {
         let userEmail = req.body.email;
         User.findOne({ email: userEmail }, (err, user) => {
             if (err) {
-                res.send(err);
+                res.send(err).status(500);
             } else if (user) {
                 const userPassword = req.body.password;
                 if (user.password == userPassword) {
