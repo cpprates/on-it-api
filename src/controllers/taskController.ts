@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import { TaskSchema } from '../models/taskModel';
 import { Request, Response, Router } from 'express';
 import Controller from './interface';
+import { TokenService } from './tokenService';
 
 const Task = mongoose.model('Task', TaskSchema);
 
@@ -15,15 +16,25 @@ export class TaskController implements Controller {
     }
 
     private initializeRoutes() {
-        this.router.get(this.path, this.getTasks);
-        this.router.get(`${this.path}/:taskId`, this.getTaskWithID);
-        this.router.post(`${this.path}/create`, this.addNewTask);
-        this.router.post(`${this.path}/:taskId/edit`, this.editTask);
-        this.router.post(`${this.path}/:taskId/delete`, this.deleteTask);
+        this.router.get(this.path, TokenService.decryptMiddleware, this.getTasks.bind(this));
+        this.router.get(`${this.path}/:taskId`, TokenService.decryptMiddleware, this.getTaskWithID.bind(this));
+        this.router.post(`${this.path}/create`, TokenService.decryptMiddleware, this.addNewTask.bind(this));
+        this.router.post(`${this.path}/:taskId/edit`, TokenService.decryptMiddleware, this.editTask.bind(this));
+        this.router.post(`${this.path}/:taskId/delete`, TokenService.decryptMiddleware, this.deleteTask.bind(this));
     }
 
-    public addNewTask(req: Request, res: Response) {
-        let newTask = new Task(req.body);
+    public getTasks(req: any, res: Response) {
+        Task.find({ userId: req.userId }, (err, task) => {
+            if (err) {
+                res.send(err);
+            }
+            res.json(task);
+        });
+    }
+
+    public addNewTask(req: any, res: Response) {
+        let taskBody = Object.assign(req.body, { userId: req.userId });
+        let newTask = new Task(taskBody);
 
         newTask.save((err, task) => {
             if (err) {
@@ -33,8 +44,8 @@ export class TaskController implements Controller {
         });
     }
 
-    public getTasks(req: Request, res: Response) {
-        Task.find({}, (err, task) => {
+    public getTaskWithID(req: any, res: Response) {
+        Task.find({ _id: req.params.taskId, userId: req.userId }, (err, task) => {
             if (err) {
                 res.send(err);
             }
@@ -42,8 +53,10 @@ export class TaskController implements Controller {
         });
     }
 
-    public getTaskWithID(req: Request, res: Response) {
-        Task.findById(req.params.taskId, (err, task) => {
+    public editTask(req: any, res: Response) {
+        let taskBody = Object.assign(req.body, { userId: req.userId });
+
+        Task.findOneAndUpdate({ _id: req.params.taskId, userId: req.userId }, taskBody, (err, task) => {
             if (err) {
                 res.send(err);
             }
@@ -51,21 +64,12 @@ export class TaskController implements Controller {
         });
     }
 
-    public editTask(req: Request, res: Response) {
-        Task.findOneAndUpdate({ _id: req.params.taskId }, req.body, { new: true }, (err, task) => {
+    public deleteTask(req: any, res: Response) {
+        Task.remove({ _id: req.params.taskId, userId: req.userId }, (err, task) => {
             if (err) {
                 res.send(err);
             }
-            res.json(task);
-        });
-    }
-
-    public deleteTask(req: Request, res: Response) {
-        Task.remove({ _id: req.params.taskId }, (err, task) => {
-            if (err) {
-                res.send(err);
-            }
-            res.json({ message: 'Successfully deleted task ' });
+            res.json({ message: 'Successfully deleted task' });
         });
     }
 }

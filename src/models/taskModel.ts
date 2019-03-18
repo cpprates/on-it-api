@@ -12,6 +12,10 @@ export const TaskSchema = new Schema({
     priority: {
         type: String,
     },
+    userId: {
+        type: String,
+        required: true,
+    },
     created_date: {
         type: Date,
         default: Date.now
