@@ -16,8 +16,15 @@ export const TaskSchema = new Schema({
         type: String,
         required: true,
     },
-    created_date: {
+    start_date: {
         type: Date,
         default: Date.now
+    },
+    due_date: {
+        type: Date
+    },
+    complete: {
+        type: Boolean,
+        default: false
     }
 });
