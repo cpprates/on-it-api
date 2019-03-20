@@ -10,6 +10,7 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}/dist/server.js",
             "preLaunchTask": "tsc: build - tsconfig.json",
+            "envFile" : "${workspaceFolder}/.env",
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ]

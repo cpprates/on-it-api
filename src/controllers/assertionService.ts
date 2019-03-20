@@ -2,16 +2,17 @@ import * as AssistantV2 from 'watson-developer-cloud/assistant/v2';
 
 
 const service = new AssistantV2({
-    iam_apikey: 'auto-generated-apikey-c7eaa7f9-d442-4177-8a32-7227a6bbcf64',
+    username: process.env.WATSON_USER,
+    password: process.env.WATSON_PWD,
     version: '2018-09-20'
 });
-const assistantId = 'db4c64cc-ceb7-4edc-bef7-346073b98546';
+const assistantId = process.env.WATSON_ASSISTANT_ID;
 
 
-class AssertionService {
+export class AssertionService {
 
 
-    static generateAssertion(messageText: string): Promise<string> {
+    static generateAssertion(messageText: string, sessionId?: string): Promise<string> {
 
         return new Promise((resolve, reject) => {
 
@@ -39,10 +40,7 @@ class AssertionService {
                         console.error(err);
                         return;
                     }
-
-                    console.log(response);
-
-                    // Display the output from assistant, if any. Assumes a single text response.
+                    
                     if (response.output.generic.length != 0) {
                         resolve(response.output.generic[0].text);
                         console.log(`Assertion received: ${response.output.generic[0].text}`)
