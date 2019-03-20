@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "docs": "rm -rf docs && NODE_OPTIONS=--max_old_space_size=2048 api-console build -t \"RAML 1.0\" -a api.raml -o docs",
+    "view-docs": "api-console serve docs/ --open",
     "build": "tsc",
     "dev": "DB_URL='mongodb://localhost:27017/onit' SECRET='ashuashuashuashu' nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/server.ts",
     "prod": "forever -o out.log -e err.log ./dist/server.js"
@@ -19,7 +21,8 @@
     "mongoose": "^5.4.14",
     "nodemon": "^1.18.10",
     "typescript": "^3.3.3333",
-    "forever": "0.15.3"
+    "forever": "0.15.3",
+    "watson-developer-cloud": "3.18.3"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.3.2",
