@@ -3,6 +3,7 @@ import { TaskSchema } from '../models/taskModel';
 import { Request, Response, Router } from 'express';
 import Controller from './interface';
 import { TokenService } from './tokenService';
+import { AssertionService } from './assertionService';
 
 const Task = mongoose.model('Task', TaskSchema);
 
@@ -21,6 +22,7 @@ export class TaskController implements Controller {
         this.router.post(`${this.path}/create`, TokenService.decryptMiddleware, this.addNewTask.bind(this));
         this.router.post(`${this.path}/:taskId/edit`, TokenService.decryptMiddleware, this.editTask.bind(this));
         this.router.post(`${this.path}/:taskId/delete`, TokenService.decryptMiddleware, this.deleteTask.bind(this));
+        this.router.get(`${this.path}/:taskId/assertion`, TokenService.decryptMiddleware, this.getAssertion.bind(this));
     }
 
     public getTasks(req: any, res: Response) {
@@ -71,6 +73,33 @@ export class TaskController implements Controller {
             }
             res.json({ message: 'Successfully deleted task' });
         });
+    }
+
+    public async getAssertion(req: any, res: Response) {
+
+        try {
+
+            // Loads task from DB
+            Task.findOne({ _id: req.params.taskId, userId: req.userId }, async (err, task) => {
+                if (err || !task) {
+                    res.status(500).send(`Cannot find task with id ${req.params.taskId}`);
+                    return;
+                }
+
+                const taskName = task.title;
+                const assertion = await AssertionService.generateAssertion(taskName);
+                res.send({
+                    task: taskName,
+                    assertion
+                });
+            });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).send(error);
+        }
+
+
     }
 }
 

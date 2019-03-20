@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "DB_URL='mongodb://localhost:27017/onit' SECRET='ashuashuashuashu' nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/server.ts",
+    "dev": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' -r dotenv/config src/server.ts",
     "prod": "forever -o out.log -e err.log ./dist/server.js"
   },
   "keywords": [],
@@ -19,10 +19,12 @@
     "mongoose": "^5.4.14",
     "nodemon": "^1.18.10",
     "typescript": "^3.3.3333",
-    "forever": "0.15.3"
+    "forever": "0.15.3",
+    "watson-developer-cloud": "3.18.3"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.3.2",
-    "ts-node": "8.0.2"
+    "ts-node": "8.0.2",
+    "dotenv" : "7.0.0"
   }
 }
