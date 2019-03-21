@@ -40,19 +40,15 @@ export class AssertionService {
                         console.error(err);
                         return;
                     }
-                    
+
                     if (response.output.generic.length != 0) {
                         resolve(response.output.generic[0].text);
                         console.log(`Assertion received: ${response.output.generic[0].text}`)
+                    } else {
+                        reject("Error. Could not find any affirmation.");
                     }
-
-
                 });
             });
-
         });
-
-
     }
-
 }
