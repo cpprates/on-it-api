@@ -18,6 +18,7 @@ export class TaskController implements Controller {
 
     private initializeRoutes() {
         this.router.get(this.path, TokenService.decryptMiddleware, this.getTasks.bind(this));
+        this.router.get(`${this.path}/search`, TokenService.decryptMiddleware, this.getTasksByQuery.bind(this));
         this.router.get(`${this.path}/:taskId`, TokenService.decryptMiddleware, this.getTaskWithID.bind(this));
         this.router.post(`${this.path}/create`, TokenService.decryptMiddleware, this.addNewTask.bind(this));
         this.router.post(`${this.path}/:taskId/edit`, TokenService.decryptMiddleware, this.editTask.bind(this));
@@ -27,6 +28,31 @@ export class TaskController implements Controller {
 
     public getTasks(req: any, res: Response) {
         Task.find({ userId: req.userId }, (err, task) => {
+            if (err) {
+                res.send(err);
+            }
+            res.json(task);
+        });
+    }
+
+    public getTasksByQuery(req: any, res: Response) {
+        let from = new Date(req.query.due_date);
+        from.setUTCHours(0, 0, 0, 0);
+
+        let to = new Date(req.query.due_date);
+        to.setUTCHours(0, 0, 0, 0);
+
+        to.setDate(to.getDate() + 1);
+
+        // let ISOFrom = from.toISOString();
+        // let ISOTo = to.toISOString();
+
+        Task.find({
+            due_date: {
+                $gte: from,
+                $lt: to
+            }, userId: req.userId
+        }, (err, task) => {
             if (err) {
                 res.send(err);
             }
