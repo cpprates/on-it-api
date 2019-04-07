@@ -13,5 +13,11 @@ docker rm $IMAGE || true
 echo "Loading the new image $IMAGE..."
 source $ENV_FILE
 docker load < /opt/onit/workdir/$IMAGE.tar.gz
-docker run --name $IMAGE -p 80:3000 --link some-mongo --restart always -e DB_URL=$DB_URL -e SECRET=$SECRET -d $IMAGE
+docker run --name $IMAGE -p 80:3000 --link some-mongo --restart always \
+    -e DB_URL=$DB_URL \
+    -e SECRET=$SECRET \
+    -e WATSON_ASSISTANT_ID=$WATSON_ASSISTANT_ID \
+    -e WATSON_USER=$WATSON_USER \
+    -e WATSON_PWD=$WATSON_PWD \
+    -d $IMAGE
 rm $ENV_FILE
